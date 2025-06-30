@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Steganografi EMD Modern</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="main-header">
+            <h1>Steganografi EMD</h1>
+            <p>Sembunyikan pesan rahasia di dalam gambar dengan aman.</p>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-messages-container">
+            {% for category, message in messages %}
+              <div class="flash-message flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <main class="main-content">
+            <section class="card">
+                <h2>1. Sisipkan Pesan</h2>
+                <form action="{{ url_for('encode') }}" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="image">Unggah Gambar (PNG, JPG)</label>
+                        <input type="file" name="image" id="image" accept=".png, .jpg, .jpeg" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Pesan Rahasia</label>
+                        <textarea name="message" id="message" placeholder="Tuliskan pesan Anda di sini..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Mulai Proses Sisipkan</button>
+                </form>
+            </section>
+
+            <section class="card">
+                <h2>2. Ekstrak Pesan</h2>
+                <form action="{{ url_for('decode') }}" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="stego_image">Unggah Gambar Hasil Steganografi</label>
+                        <input type="file" name="stego_image" id="stego_image" accept=".png, .jpg, .jpeg" required>
+                    </div>
+                    <button type="submit" class="btn btn-secondary">Mulai Proses Ekstraksi</button>
+                </form>
+            </section>
+        </main>
+
+        {% if show_result and original_image and stego_image %}
+        <section class="result-section card">
+            <h2>Hasil Proses Penyisipan</h2>
+            <div class="image-grid">
+                <div class="image-box">
+                    <h3>Gambar Asli</h3>
+                    <img src="{{ url_for('uploaded_file', filename=original_image) }}" alt="Gambar Asli">
+                </div>
+                <div class="image-box">
+                    <h3>Gambar Hasil Steganografi</h3>
+                    <img src="{{ url_for('result_file', filename=stego_image) }}" alt="Gambar Stego">
+                    <a href="{{ url_for('download', filename=stego_image) }}" class="btn btn-success download-link">Unduh Gambar Hasil</a>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        {% if show_decode_result and extracted_message %}
+        <section class="result-section card">
+            <h2>Hasil Proses Ekstraksi</h2>
+            <h3>Pesan yang Ditemukan:</h3>
+            <div class="decoded-message">
+                <pre>{{ extracted_message }}</pre>
+            </div>
+        </section>
+        {% endif %}
+
+    </div>
+</body>
+</html>
